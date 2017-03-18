@@ -32,5 +32,7 @@ public class gitActivity extends AppCompatActivity {
 
         ListView display_list = (ListView) findViewById(R.id.main_list);
         display_list.setAdapter( list_adapter );
+
+        new UrlConnection().execute("https://api.github.com/users");
     }
 }

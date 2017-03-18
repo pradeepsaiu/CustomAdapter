@@ -5,13 +5,13 @@
 
     <TextView
         android:id="@+id/score"
-        android:text="10"
-        android:textSize="124px"
         android:layout_width="0dp"
-        android:layout_weight=".2"
         android:layout_height="wrap_content"
+        android:layout_weight=".2"
+        android:text="10"
         android:textAlignment="center"
-        />
+        android:textSize="124px" />
+
     <TextView
         android:id="@+id/name"
         android:textSize="124px"
@@ -24,7 +24,7 @@
         />
     <TextView
         android:id="@+id/stars"
-        android:textSize="124px"
+        android:textSize="84px"
         android:text="100"
         android:layout_toRightOf="@+id/score"
         android:layout_width="0dp"
