@@ -20,8 +20,7 @@ import java.util.List;
 
 public class GitAdapter extends ArrayAdapter {
 
-    private Context context;
-    private ArrayList<GitDetails> gd;
+
 
     public GitAdapter(Activity context, ArrayList<GitDetails> androidFlavors) {
         // Here, we initialize the ArrayAdapter's internal storage for the context and the list.

@@ -4,6 +4,9 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.conn.ConnectTimeoutException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,11 +22,12 @@ import static java.sql.Types.NULL;
  * Created by pradeepsaiuppula on 3/17/17.
  */
 
-public class UrlConnection extends AsyncTask<String,Void,String> {
+public class UrlConnection extends AsyncTask<String,String,String> {
 
     URL url;
     HttpURLConnection urlConnection;
     int code;
+    String output;
 
     public String stringReader(InputStream is) throws IOException{
 
@@ -59,16 +63,18 @@ public class UrlConnection extends AsyncTask<String,Void,String> {
             code = urlConnection.getResponseCode();
             if (code == 200) {
                 inputStream = urlConnection.getInputStream();
-                jsonResponse = stringReader(inputStream);
+                output = jsonResponse = stringReader(inputStream);
+                Log.d("==>",""+jsonResponse);
+
 
             } else {
 //                throw (Exception e(""));
             }
 
-            Log.d("UrlConnecion------", "" + code);
+
         }
         catch (Exception e) {
-            Log.e("urlConnection<---", "" + e.getMessage() + e.getLocalizedMessage() + e.toString());
+            Log.e("Exception connection", "" + e.getMessage() + e.getLocalizedMessage() + e.toString());
         }
         finally {
 
@@ -89,6 +95,14 @@ public class UrlConnection extends AsyncTask<String,Void,String> {
 
     @Override
     protected void onPostExecute(String s) {
-        Log.d("UrlConnecion",""+code);
+
+        try {
+
+            JSONArray j = new JSONArray(s);
+            Log.d("length=",j.length() +"");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }
