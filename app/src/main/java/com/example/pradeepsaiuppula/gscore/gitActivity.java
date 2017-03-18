@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -26,6 +27,8 @@ public class gitActivity extends AppCompatActivity {
     ArrayList<GitDetails> detailed_view = new ArrayList<GitDetails>();
     GitAdapter list_adapter;
     ListView display_list;
+    String git_head="https://api.github.com/users";
+    int user_base = 0;
 
 
     @Override
@@ -40,24 +43,48 @@ public class gitActivity extends AppCompatActivity {
         display_list = (ListView) findViewById(R.id.main_list);
 
 
-
-//
-//        detailed_view.add(new GitDetails("User1",1,1000));
-//        detailed_view.add(new GitDetails("User2",2,500));
-//        detailed_view.add(new GitDetails("User3",3,400));
-//        detailed_view.add(new GitDetails("User4",4,300));
-//        detailed_view.add(new GitDetails("User5",5,200));
-//        detailed_view.add(new GitDetails("User6",6,100));
-//        detailed_view.add(new GitDetails("User7",7,50));
-//        detailed_view.add(new GitDetails("User8",8,490));
-//
-
-
-
-        new UrlConnection().execute("https://api.github.com/users");
+        new UrlConnection().execute(git_head,"?since="+user_base);
 
         display_list = (ListView) findViewById(R.id.main_list);
+        display_list.setAdapter( list_adapter );
+        display_list.setOnScrollListener(new EndlessScrollListener());
 
+    }
+
+    public class EndlessScrollListener implements AbsListView.OnScrollListener {
+
+        private int visibleThreshold = 5;
+        private int currentPage = 0;
+        private int previousTotal = 0;
+        private boolean loading = true;
+
+        public EndlessScrollListener() {
+        }
+        public EndlessScrollListener(int visibleThreshold) {
+            this.visibleThreshold = visibleThreshold;
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                             int visibleItemCount, int totalItemCount) {
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    loading = false;
+                    previousTotal = totalItemCount;
+                    currentPage++;
+                }
+            }
+            if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                // I load the next page of gigs using a background task,
+                // but you can call any function here.
+                new UrlConnection().execute(git_head,"?since="+user_base);
+                loading = true;
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
     }
 
     private class UrlConnection extends AsyncTask<String,String,String> {
@@ -88,7 +115,7 @@ public class gitActivity extends AppCompatActivity {
             String jsonResponse = "";
             InputStream inputStream = null;
             try {
-                url = new URL(params[0]);
+                url = new URL(params[0]+params[1]);
                 if (url == null) {
                     return jsonResponse;
                 }
@@ -138,16 +165,16 @@ public class gitActivity extends AppCompatActivity {
                 JSONArray j = new JSONArray(s);
 
                 for(int i=0; i<j.length();i++){
-                    String s1 = j.getJSONObject(i).getString("login");
-                    Log.d("error",s1+"");
-                    detailed_view.add(new GitDetails(s1,1,1));
+                    String username = j.getJSONObject(i).getString("login");
+                    int id = j.getJSONObject(i).getInt("id");
+                    detailed_view.add(new GitDetails(username,id,1,""));
 
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            display_list.setAdapter( list_adapter );
+            user_base+=30;
+            list_adapter.notifyDataSetChanged();
         }
     }
 

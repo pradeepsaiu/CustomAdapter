@@ -45,8 +45,8 @@ public class GitAdapter extends ArrayAdapter {
         TextView nameTextView = (TextView) listItemView.findViewById(R.id.name);
         nameTextView.setText(obj.getUsername());
 
-        TextView rankTextView = (TextView) listItemView.findViewById(R.id.stars);
-        rankTextView.setText(obj.getTotal_stars()+"");
+//        TextView rankTextView = (TextView) listItemView.findViewById(R.id.stars);
+//        rankTextView.setText(obj.getTotal_stars()+"");
 
         TextView starsTextView = (TextView) listItemView.findViewById(R.id.score);
         starsTextView.setText(obj.getRanking()+"");
