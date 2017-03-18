@@ -1,12 +1,19 @@
-package com.example.pradeepsaiuppula.gscore;
+package com.pup.pradeepsaiuppula.gscore;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.MainThread;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.pup.pradeepsaiuppula.gscore.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +29,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class gitActivity extends AppCompatActivity {
+public class gitActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<GitDetails>> {
 
     ArrayList<GitDetails> detailed_view = new ArrayList<GitDetails>();
     GitAdapter list_adapter;
@@ -43,7 +50,10 @@ public class gitActivity extends AppCompatActivity {
         display_list = (ListView) findViewById(R.id.main_list);
 
 
-        new UrlConnection().execute(git_head,"?since="+user_base);
+//        new UrlConnection().execute(git_head,"?since="+user_base);
+
+        //1 represents the unique key here
+        getSupportLoaderManager().initLoader(1,null,this);
 
         display_list = (ListView) findViewById(R.id.main_list);
         display_list.setAdapter( list_adapter );
@@ -51,10 +61,26 @@ public class gitActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public Loader<List<GitDetails>> onCreateLoader(int id, Bundle args) {
+        //returns an instance of git loader object
+        return new GitLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<GitDetails>> loader, List<GitDetails> data) {
+        // loader contains the list returned from do in background
+        list_adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<GitDetails>> loader) {
+
+    }
+
     public class EndlessScrollListener implements AbsListView.OnScrollListener {
 
         private int visibleThreshold = 5;
-        private int currentPage = 0;
         private int previousTotal = 0;
         private boolean loading = true;
 
@@ -71,14 +97,13 @@ public class gitActivity extends AppCompatActivity {
                 if (totalItemCount > previousTotal) {
                     loading = false;
                     previousTotal = totalItemCount;
-                    currentPage++;
                 }
             }
             if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                // I load the next page of gigs using a background task,
-                // but you can call any function here.
-                new UrlConnection().execute(git_head,"?since="+user_base);
+//                new UrlConnection().execute(git_head,"?since="+user_base);
+                getSupportLoaderManager().initLoader(1,null, gitActivity.this);
                 loading = true;
+
             }
         }
 
@@ -87,12 +112,16 @@ public class gitActivity extends AppCompatActivity {
         }
     }
 
-    private class UrlConnection extends AsyncTask<String,String,String> {
 
-        URL url;
+    public class GitLoader extends AsyncTaskLoader<List<GitDetails>>{
+
         HttpURLConnection urlConnection;
-        int code;
-        String output;
+        URL url;
+        int code;//saves response code
+
+        public GitLoader(Context context) {
+            super(context);
+        }
 
         public String stringReader(InputStream is) throws IOException {
 
@@ -110,14 +139,15 @@ public class gitActivity extends AppCompatActivity {
             return  return_value.toString();
         }
 
+
         @Override
-        protected String doInBackground(String... params) {
+        public List<GitDetails> loadInBackground() {
             String jsonResponse = "";
             InputStream inputStream = null;
             try {
-                url = new URL(params[0]+params[1]);
+                url = new URL(git_head+"?since="+user_base);
                 if (url == null) {
-                    return jsonResponse;
+                    return null;
                 }
 
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -128,9 +158,8 @@ public class gitActivity extends AppCompatActivity {
                 code = urlConnection.getResponseCode();
                 if (code == 200) {
                     inputStream = urlConnection.getInputStream();
-                    output = jsonResponse = stringReader(inputStream);
+                    jsonResponse = stringReader(inputStream);
                     Log.d("==>",""+jsonResponse);
-
 
                 } else {
 //                throw (Exception e(""));
@@ -154,28 +183,24 @@ public class gitActivity extends AppCompatActivity {
                     }
                 }
 
-                return jsonResponse;
-            }
-        }
 
-        @Override
-        protected void onPostExecute(String s) {
 
-            try {
-                JSONArray j = new JSONArray(s);
+                try {
+                    JSONArray j = new JSONArray(jsonResponse);
 
-                for(int i=0; i<j.length();i++){
-                    String username = j.getJSONObject(i).getString("login");
-                    int id = j.getJSONObject(i).getInt("id");
-                    detailed_view.add(new GitDetails(username,id,1,""));
+                    for(int i=0; i<j.length();i++){
+                        String username = j.getJSONObject(i).getString("login");
+                        int id = j.getJSONObject(i).getInt("id");
+                        detailed_view.add(new GitDetails(username,id,1,""));
 
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+                user_base+=30;
+                return  detailed_view;
+//                list_adapter.notifyDataSetChanged();
+                }
             }
-            user_base+=30;
-            list_adapter.notifyDataSetChanged();
         }
     }
-
-}

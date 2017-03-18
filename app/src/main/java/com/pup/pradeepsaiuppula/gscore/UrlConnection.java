@@ -1,4 +1,4 @@
-package com.example.pradeepsaiuppula.gscore;
+package com.pup.pradeepsaiuppula.gscore;
 
 import android.os.AsyncTask;
 import android.util.Log;

@@ -4,12 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.pradeepsaiuppula.gscore.gitActivity">
+    tools:context="com.pup.pradeepsaiuppula.gscore.gitActivity_orig">
 
     <ListView
         android:id="@+id/main_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:padding="10px"
+        android:background="@color/listback"
+        />
 
 
 </android.support.constraint.ConstraintLayout>

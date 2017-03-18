@@ -1,4 +1,4 @@
-package com.example.pradeepsaiuppula.gscore;
+package com.pup.pradeepsaiuppula.gscore;
 
 /**
  * Created by pradeepsaiuppula on 3/13/17.

@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         />
+
     <!--<TextView-->
         <!--android:id="@+id/stars"-->
         <!--android:textSize="84px"-->
