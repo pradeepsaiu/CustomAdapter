@@ -5,8 +5,15 @@ import android.util.Log;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
+
+import static java.sql.Types.NULL;
 
 /**
  * Created by pradeepsaiuppula on 3/17/17.
@@ -18,21 +25,66 @@ public class UrlConnection extends AsyncTask<String,Void,String> {
     HttpURLConnection urlConnection;
     int code;
 
+    public String stringReader(InputStream is) throws IOException{
+
+        StringBuilder return_value= new StringBuilder();
+        if(is!=null)
+        {
+            InputStreamReader isr = new InputStreamReader(is, Charset.forName("UTF-8"));
+            BufferedReader bf = new BufferedReader(isr);
+            String line = bf.readLine();
+            while(line!=null){
+                 return_value.append(line);
+                line = bf.readLine();
+            }
+        }
+        return  return_value.toString();
+    }
+
     @Override
     protected String doInBackground(String... params) {
-        try{
+        String jsonResponse = "";
+        InputStream inputStream = null;
+        try {
             url = new URL(params[0]);
+            if (url == null) {
+                return jsonResponse;
+            }
+
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setReadTimeout(15000);
             urlConnection.setConnectTimeout(1500);
             urlConnection.connect();
-            Log.e("urlConnection===>",urlConnection.getResponseCode()+"");
+//            Log.e("urlConnection===>",urlConnection.getResponseCode()+"");
             code = urlConnection.getResponseCode();
+            if (code == 200) {
+                inputStream = urlConnection.getInputStream();
+                jsonResponse = stringReader(inputStream);
+
+            } else {
+//                throw (Exception e(""));
+            }
+
+            Log.d("UrlConnecion------", "" + code);
         }
-        catch (Exception e){
-            Log.e("urlConnection<---",""+e.getMessage()+e.getLocalizedMessage()+e.toString());
+        catch (Exception e) {
+            Log.e("urlConnection<---", "" + e.getMessage() + e.getLocalizedMessage() + e.toString());
         }
-        return "hello";
+        finally {
+
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return jsonResponse;
+        }
     }
 
     @Override

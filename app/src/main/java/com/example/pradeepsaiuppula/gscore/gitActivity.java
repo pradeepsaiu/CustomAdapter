@@ -2,6 +2,7 @@ package com.example.pradeepsaiuppula.gscore;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -33,6 +34,6 @@ public class gitActivity extends AppCompatActivity {
         ListView display_list = (ListView) findViewById(R.id.main_list);
         display_list.setAdapter( list_adapter );
 
-        new UrlConnection().execute("https://api.github.com/users");
+        Log.d("",""+new UrlConnection().execute("https://api.github.com/users"));
     }
 }
